@@ -6,6 +6,7 @@ import java.time.*;
 import java.util.*;
 import javax.crypto.SecretKey;
 import org.springframework.security.oauth2.jwt.*;
+import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.stereotype.Service;
 @Service
 public class JwtService {
