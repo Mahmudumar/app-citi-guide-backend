@@ -22,8 +22,23 @@ The server binds to `0.0.0.0:8080`. Android emulator uses `http://10.0.2.2:8080`
 ## Database
 Flyway owns the schema. Hibernate is set to `validate`; it must never create or update tables. For Supabase production, use the direct PostgreSQL connection or session pooler on port 5432 with `sslmode=require`; use the same owning database role for Flyway and the application because RLS is enabled without policies. Do not use the Supabase client SDK, Supabase Auth or Supabase REST API. If the transaction pooler on port 6543 is unavoidable, add `prepareThreshold=0` to the JDBC URL and run Flyway over a direct connection.
 
-## Configuration
-See `.env.example`. Important values: `DB_URL`, `DB_USER`, `DB_PASSWORD`, `JWT_SECRET`, `CORS_ORIGINS`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `STORAGE_LOCAL_DIR`, `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD`, and `MAIL_FROM`. Never commit secrets. The JWT secret is mandatory and must be at least 32 bytes.
+## Environment variables
+All variables are documented in `.env.example`.
+
+| Variable | Purpose |
+| --- | --- |
+| `SERVER_PORT` | HTTP server port |
+| `DB_URL`, `DB_USER`, `DB_PASSWORD` | PostgreSQL JDBC connection |
+| `JWT_SECRET`, `JWT_ACCESS_TTL`, `JWT_REFRESH_TTL` | JWT signing and token lifetimes |
+| `LOGIN_MAX_ATTEMPTS`, `LOGIN_LOCK_SECONDS` | Login lockout |
+| `RESET_CODE_TTL_MINUTES`, `RESET_MAX_ATTEMPTS`, `DEV_RETURN_RESET_CODE` | Password reset |
+| `CORS_ORIGINS` | Allowed browser origins |
+| `STORAGE_LOCAL_DIR` | Local upload directory |
+| `ADMIN_EMAIL`, `ADMIN_PASSWORD` | Optional first-admin bootstrap |
+| `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_FROM` | Production SMTP |
+| `MAIL_PROPERTIES_MAIL_SMTP_AUTH`, `MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE` | SMTP options |
+
+Never commit secrets. The JWT secret is mandatory and must be at least 32 bytes.
 
 ## Seed data
 The original `V2__seed.sql` attachment was not available in this task. The committed V2 migration contains illustrative sample rows matching the requested four-city / 35-place counts and category totals. It is not the approved Flutter dataset; replace it with the approved seed before production use.
