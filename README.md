@@ -42,3 +42,9 @@ Local Swagger UI: `/swagger-ui.html`. Production disables OpenAPI docs. Health: 
 
 ## Tests
 Run `./mvnw verify`. Tests use PostgreSQL Testcontainers; Docker must be available. The current suite checks application startup, the seed counts, protected-route error shape, registration/login, and opening-hours edge cases.
+
+## Assumptions
+- The missing approved V2 attachment was replaced with clearly labelled illustrative data; do not treat it as production content.
+- Local uploads use the filesystem. The StorageService boundary is ready for a future Supabase Storage adapter.
+- The API keeps the app's last-viewed city on the Flutter device, as specified.
+- Login lockout is per instance; multi-instance deployments need a shared cache.
