@@ -1,87 +1,44 @@
-# App Citi Guide – Backend
+# City Guide API
 
-Spring Boot foundation for the App Citi Guide eProject. This repository currently contains the application setup and Supabase PostgreSQL connection only. Feature APIs and database models should be added by the team as requirements are agreed.
+Spring Boot REST API for the City Guide Flutter application. The backend owns authentication, profile data, cities, places, reviews, favourites and administration. Flutter communicates only with this API; the API connects to PostgreSQL.
 
-## Technology
-- Java 21
-- Spring Boot 3.5.7
-- Maven
-- Spring Web, Spring Data JPA / Hibernate
-- PostgreSQL JDBC driver
-- Supabase PostgreSQL
+## Stack
+- Java 21 and Spring Boot 4.1.x
+- Spring MVC, Spring Data JPA, PostgreSQL and Flyway
+- Stateless JWT access tokens and opaque rotating refresh tokens
+- BCrypt password hashing, Jakarta Validation
+- springdoc OpenAPI, Actuator, Caffeine and Spring Mail
+- JUnit 5, MockMvc and Testcontainers
 
-## Prerequisites
-- JDK 21
-- Maven 3.6.3 or later
-- A Supabase project with its PostgreSQL database
+## Run locally
+1. Install JDK 21, Maven and Docker.
+2. Copy `.env.example` to `.env` and set a random `JWT_SECRET` of at least 32 bytes.
+3. Start PostgreSQL: `docker compose up -d`.
+4. Export the environment variables from `.env` (Spring Boot does not load dotenv files automatically).
+5. Run: `mvn spring-boot:run -Dspring-boot.run.profiles=local`.
 
-## 1. Get Supabase database details
-1. Open your Supabase project.
-2. Select Connect and open the connection details.
-3. Use the Session pooler details if your network does not support IPv6 or if you need a pooled connection.
-4. Copy the host, port, database name, username, and database password.
+The server binds to `0.0.0.0:8080`. Android emulator uses `http://10.0.2.2:8080`, Chrome uses `http://localhost:8080`, and a physical phone uses the computer's LAN IP. Android 9+ blocks plain HTTP by default unless cleartext is enabled in the development build.
 
-Use the PostgreSQL connection details, not the Supabase API URL or API keys. The Spring application connects to PostgreSQL through JDBC.
+## Database
+Flyway owns the schema. Hibernate is set to `validate`; it must never create or update tables. For Supabase production, use the direct PostgreSQL connection or session pooler on port 5432 with `sslmode=require`; use the same owning database role for Flyway and the application because RLS is enabled without policies. Do not use the Supabase client SDK, Supabase Auth or Supabase REST API. If the transaction pooler on port 6543 is unavoidable, add `prepareThreshold=0` to the JDBC URL and run Flyway over a direct connection.
 
-## 2. Set environment variables
-Use .env.example as a reference and set these variables in your operating system, IDE run configuration, or deployment environment:
+## Configuration
+See `.env.example`. Important values: `DB_URL`, `DB_USER`, `DB_PASSWORD`, `JWT_SECRET`, `CORS_ORIGINS`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `STORAGE_LOCAL_DIR`, `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD`, and `MAIL_FROM`. Never commit secrets. The JWT secret is mandatory and must be at least 32 bytes.
 
-| Variable | Purpose |
-| --- | --- |
-| SUPABASE_DB_HOST | Database host from Supabase |
-| SUPABASE_DB_PORT | Database port |
-| SUPABASE_DB_NAME | Database name, commonly postgres |
-| SUPABASE_DB_USER | Database username |
-| SUPABASE_DB_PASSWORD | Database password |
-| DB_POOL_SIZE | Optional connection pool size; defaults to 5 |
-| PORT | Optional server port; defaults to 8080 |
+## Seed data
+The original `V2__seed.sql` attachment was not available in this task. Any replacement seed file must be treated as illustrative sample data and must not be represented as the approved Flutter dataset. Replace it with the approved seed before production use.
 
-Spring Boot does not load .env files by default. Do not put real credentials in application.properties or commit them.
+## Storage
+The default storage service writes random-named files under `STORAGE_LOCAL_DIR` and serves them under `/uploads/**`. A Supabase Storage implementation can replace the storage interface later by uploading the same validated bytes to a private/public bucket and returning the resulting public object path; database/API contracts need not change.
 
-Example for macOS/Linux:
+## Login lockout limitation
+Login-attempt tracking uses a local Caffeine cache. It is per application instance and is not shared between replicas. Move this state to Redis or another shared store before running more than one backend instance.
 
-    export SUPABASE_DB_HOST="your-host"
-    export SUPABASE_DB_PORT="5432"
-    export SUPABASE_DB_NAME="postgres"
-    export SUPABASE_DB_USER="your-database-user"
-    export SUPABASE_DB_PASSWORD="your-database-password"
-    mvn spring-boot:run
+## Mail and demo data
+The local profile logs password reset codes through the development mail implementation. Production uses SMTP. Local demo credentials are intended to be created by the local initializer: `demo@cityguide.app` / `Demo@1234`. Do not enable development reset-code responses outside local.
 
-On Windows PowerShell, set each variable with $env:VARIABLE_NAME="value" before running Maven.
+## API docs and health
+Local Swagger UI: `/swagger-ui.html`. Production disables OpenAPI docs. Health: `/actuator/health`.
 
-## 3. Run the application
-
-From the repository root:
-
-    mvn clean spring-boot:run
-
-The application listens on http://localhost:8080 by default. The basic health endpoint is:
-
-    http://localhost:8080/actuator/health
-
-A healthy response confirms the application is running. It does not by itself prove that a database query has succeeded.
-
-## Project structure
-
-    src/main/java/com/appcitiguide/backend/
-    ├── AppCitiGuideBackendApplication.java
-    ├── config/       # Shared Spring configuration
-    ├── controller/   # REST endpoints
-    ├── dto/          # API request and response objects
-    ├── entity/       # JPA mappings for PostgreSQL tables
-    ├── exception/    # Shared exceptions and API error handling
-    ├── repository/   # Spring Data JPA repositories
-    └── service/      # Application business logic
-
-## Notes for the next developer
-- Confirm the database schema and naming conventions with the team before adding entities.
-- Add JPA classes in entity, repository interfaces in repository, business logic in service, and API endpoints in controller.
-- Use DTOs at the API boundary instead of returning JPA entities directly.
-- Add validation to request DTOs and handle errors centrally in exception.
-- Add focused configuration classes in config only when needed.
-- Keep secrets in environment variables. Never commit .env or real database passwords.
-- Hibernate schema generation is disabled (ddl-auto=none), so the application will not create or alter Supabase tables. Manage schema changes through Supabase SQL migrations or the team's agreed database workflow.
-- After entities and matching database tables exist, consider changing ddl-auto to validate so Hibernate checks mappings without changing the schema.
-
-## Current scope
-This is only the backend foundation. Authentication, user roles, places, categories, search, reviews, routes, and other App Citi Guide features have intentionally not been implemented yet.
+## Tests
+Run `mvn test`. Integration tests use PostgreSQL Testcontainers; Docker must be available.
