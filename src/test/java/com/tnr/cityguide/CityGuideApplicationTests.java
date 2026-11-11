@@ -1,4 +1,15 @@
 package com.tnr.cityguide;
-import org.junit.jupiter.api.Test;import org.springframework.boot.test.context.SpringBootTest;import org.springframework.test.context.ActiveProfiles;
-@SpringBootTest @ActiveProfiles("local")
-class CityGuideApplicationTests { @Test void contextLoads(){ } }
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import com.tnr.cityguide.city.CityRepository;import com.tnr.cityguide.place.PlaceRepository;import org.junit.jupiter.api.Test;import org.springframework.beans.factory.annotation.Autowired;import org.springframework.boot.test.context.SpringBootTest;import org.springframework.boot.test.context.TestConfiguration;import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;import org.springframework.context.annotation.Bean;import org.springframework.context.annotation.Import;import org.springframework.http.MediaType;import org.springframework.test.context.ActiveProfiles;import org.springframework.test.context.DynamicPropertyRegistry;import org.springframework.test.context.DynamicPropertySource;import org.springframework.test.web.servlet.MockMvc;import org.testcontainers.containers.PostgreSQLContainer;import org.testcontainers.junit.jupiter.Container;import org.testcontainers.junit.jupiter.Testcontainers;
+@SpringBootTest @ActiveProfiles("test") @Testcontainers(disabledWithoutDocker=true) @AutoConfigureMockMvc @Import(CityGuideApplicationTests.MailTestConfig.class)
+class CityGuideApplicationTests {
+ @Container static final PostgreSQLContainer<?> postgres=new PostgreSQLContainer<>("postgres:16").withDatabaseName("cityguide").withUsername("cityguide").withPassword("cityguide");
+ @DynamicPropertySource static void database(DynamicPropertyRegistry r){r.add("spring.datasource.url",postgres::getJdbcUrl);r.add("spring.datasource.username",postgres::getUsername);r.add("spring.datasource.password",postgres::getPassword);r.add("app.jwt.secret",()->"test-secret-that-is-at-least-32-bytes-long");}
+ @Autowired CityRepository cities;@Autowired PlaceRepository places;@Autowired MockMvc mvc;
+ @Test void contextLoadsAndSeedHasExpectedShape(){assertThat(cities.count()).isEqualTo(4);assertThat(places.count()).isEqualTo(35);}
+ @Test void protectedEndpointReturnsJson401() throws Exception {mvc.perform(get("/api/cities")).andExpect(status().isUnauthorized()).andExpect(jsonPath("$.status").value(401)).andExpect(jsonPath("$.path").value("/api/cities"));}
+ @Test void registerAndLoginReturnTokenPair() throws Exception {String email="test-"+java.util.UUID.randomUUID()+"@example.com";String body="{\"name\":\"Ann Lee\",\"email\":\""+email+"\",\"password\":\"Good@Pass1\",\"confirmPassword\":\"Good@Pass1\"}";mvc.perform(post("/api/auth/register").contentType(MediaType.APPLICATION_JSON).content(body)).andExpect(status().isCreated()).andExpect(jsonPath("$.accessToken").isNotEmpty()).andExpect(jsonPath("$.refreshToken").isNotEmpty());mvc.perform(post("/api/auth/login").contentType(MediaType.APPLICATION_JSON).content("{\"email\":\""+email+"\",\"password\":\"Good@Pass1\"}")).andExpect(status().isOk()).andExpect(jsonPath("$.tokenType").value("Bearer"));}
+ @TestConfiguration static class MailTestConfig {@Bean com.tnr.cityguide.auth.MailService testMailService(){return (email,code)->{};}}
+}

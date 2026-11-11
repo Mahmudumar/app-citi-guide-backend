@@ -15,4 +15,4 @@ jobs:
           java-version: "21"
           cache: maven
       - name: Test
-        run: mvn --batch-mode verify
+        run: ./mvnw --batch-mode verify
