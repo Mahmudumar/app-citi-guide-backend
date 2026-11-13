@@ -1,0 +1,186 @@
+@baseUrl = http://localhost:8080
+@accessToken = replace-after-login
+@refreshToken = replace-after-login
+@placeId = eiffel
+@reviewId = replace-with-review-uuid
+
+### Register
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+
+{"name":"Ann Lee","email":"ann@example.com","password":"Good@Pass1","confirmPassword":"Good@Pass1"}
+
+### Login
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{"email":"demo@cityguide.app","password":"Demo@1234"}
+
+### Refresh
+POST {{baseUrl}}/api/auth/refresh
+Content-Type: application/json
+
+{"refreshToken":"{{refreshToken}}"}
+
+### Logout
+POST {{baseUrl}}/api/auth/logout
+Content-Type: application/json
+
+{"refreshToken":"{{refreshToken}}"}
+
+### Forgot password
+POST {{baseUrl}}/api/auth/forgot-password
+Content-Type: application/json
+
+{"email":"demo@cityguide.app"}
+
+### Reset password
+POST {{baseUrl}}/api/auth/reset-password
+Content-Type: application/json
+
+{"email":"demo@cityguide.app","code":"123456","password":"New@Pass123","confirmPassword":"New@Pass123"}
+
+### Current profile
+GET {{baseUrl}}/api/me
+Authorization: Bearer {{accessToken}}
+
+### Update profile
+PATCH {{baseUrl}}/api/me
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{"name":"Ann L.","phone":"+44 20 7946 0000","prefs":{"events":true,"reviews":false,"news":false}}
+
+### Upload avatar
+PUT {{baseUrl}}/api/me/avatar
+Authorization: Bearer {{accessToken}}
+Content-Type: multipart/form-data; boundary=CityGuideBoundary
+
+--CityGuideBoundary
+Content-Disposition: form-data; name="file"; filename="avatar.jpg"
+Content-Type: image/jpeg
+
+< ./avatar.jpg
+--CityGuideBoundary--
+
+### Remove avatar
+DELETE {{baseUrl}}/api/me/avatar
+Authorization: Bearer {{accessToken}}
+
+### Change password
+POST {{baseUrl}}/api/me/change-password
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{"currentPassword":"Demo@1234","newPassword":"New@Pass123","confirmPassword":"New@Pass123"}
+
+### My reviews
+GET {{baseUrl}}/api/me/reviews
+Authorization: Bearer {{accessToken}}
+
+### My favourites
+GET {{baseUrl}}/api/me/favorites
+Authorization: Bearer {{accessToken}}
+
+### Add favourite
+PUT {{baseUrl}}/api/me/favorites/{{placeId}}
+Authorization: Bearer {{accessToken}}
+
+### Remove favourite
+DELETE {{baseUrl}}/api/me/favorites/{{placeId}}
+Authorization: Bearer {{accessToken}}
+
+### Cities
+GET {{baseUrl}}/api/cities
+Authorization: Bearer {{accessToken}}
+
+### City details
+GET {{baseUrl}}/api/cities/paris
+Authorization: Bearer {{accessToken}}
+
+### Browse places
+GET {{baseUrl}}/api/places?city=paris&category=attraction&q=art%20museum&sort=rating&page=0&size=20
+Authorization: Bearer {{accessToken}}
+
+### Place details
+GET {{baseUrl}}/api/places/{{placeId}}
+Authorization: Bearer {{accessToken}}
+
+### Place reviews
+GET {{baseUrl}}/api/places/{{placeId}}/reviews
+Authorization: Bearer {{accessToken}}
+
+### Create or replace review
+PUT {{baseUrl}}/api/places/{{placeId}}/reviews
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{"rating":5,"text":"Worth every minute."}
+
+### Delete own review
+DELETE {{baseUrl}}/api/reviews/{{reviewId}}
+Authorization: Bearer {{accessToken}}
+
+### Like review
+PUT {{baseUrl}}/api/reviews/{{reviewId}}/like
+Authorization: Bearer {{accessToken}}
+
+### Unlike review
+DELETE {{baseUrl}}/api/reviews/{{reviewId}}/like
+Authorization: Bearer {{accessToken}}
+
+### Create city (admin)
+POST {{baseUrl}}/api/admin/cities
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{"id":"rome","name":"Rome","country":"Italy","lat":41.9028,"lng":12.4964,"timezone":"Europe/Rome","hue":30,"blurb":"Ancient history","description":"A sample city.","imageUrl":null}
+
+### Replace city (admin)
+PUT {{baseUrl}}/api/admin/cities/rome
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{"id":"rome","name":"Rome","country":"Italy","lat":41.9028,"lng":12.4964,"timezone":"Europe/Rome","hue":30,"blurb":"Ancient history","description":"Updated description.","imageUrl":null}
+
+### Delete city (admin)
+DELETE {{baseUrl}}/api/admin/cities/rome
+Authorization: Bearer {{accessToken}}
+
+### Create place (admin)
+POST {{baseUrl}}/api/admin/places
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{"id":"rome-colosseum","cityId":"rome","category":"attraction","name":"Colosseum","description":"Ancient amphitheatre.","address":"Piazza del Colosseo","phone":"","website":"","lat":41.8902,"lng":12.4922,"opensAt":"09:00","closesAt":"19:00","open24h":false,"closedDays":[],"hoursText":"Daily 09:00–19:00","extra":"Tickets required","baseRating":4.8}
+
+### Replace place (admin)
+PUT {{baseUrl}}/api/admin/places/rome-colosseum
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{"id":"rome-colosseum","cityId":"rome","category":"attraction","name":"Colosseum","description":"Updated description.","address":"Piazza del Colosseo","phone":"","website":"","lat":41.8902,"lng":12.4922,"opensAt":"09:00","closesAt":"19:00","open24h":false,"closedDays":[],"hoursText":"Daily 09:00–19:00","extra":"Tickets required","baseRating":4.8}
+
+### Delete place (admin)
+DELETE {{baseUrl}}/api/admin/places/rome-colosseum
+Authorization: Bearer {{accessToken}}
+
+### Upload place image (admin)
+POST {{baseUrl}}/api/admin/places/{{placeId}}/images
+Authorization: Bearer {{accessToken}}
+Content-Type: multipart/form-data; boundary=CityGuideBoundary
+
+--CityGuideBoundary
+Content-Disposition: form-data; name="file"; filename="place.jpg"
+Content-Type: image/jpeg
+
+< ./place.jpg
+--CityGuideBoundary--
+
+### Delete place image (admin)
+DELETE {{baseUrl}}/api/admin/places/{{placeId}}/images/replace-with-image-uuid
+Authorization: Bearer {{accessToken}}
+
+### Delete review (admin)
+DELETE {{baseUrl}}/api/admin/reviews/{{reviewId}}
+Authorization: Bearer {{accessToken}}
