@@ -1,0 +1,11 @@
+package com.tnr.cityguide.notification;
+import com.tnr.cityguide.user.*;import java.time.Instant;import java.util.*;import org.springframework.http.HttpStatus;import org.springframework.stereotype.Service;import org.springframework.transaction.annotation.Transactional;import org.springframework.web.server.ResponseStatusException;
+@Service public class NotificationService {
+ private final NotificationRepository notifications;private final UserRepository users;
+ public NotificationService(NotificationRepository n,UserRepository u){notifications=n;users=u;}
+ @Transactional(readOnly=true) public List<NotificationDto> list(UUID user){return notifications.findTop100ByUserIdOrderByCreatedAtDesc(user).stream().map(this::dto).toList();}
+ @Transactional public NotificationDto markRead(UUID user,UUID id){Notification n=notifications.findByIdAndUserId(id,user).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"Notification not found."));if(n.getReadAt()==null)n.setReadAt(Instant.now());return dto(n);}
+ @Transactional public int broadcast(String category,String title,String message,String targetUrl){String normalized=category==null?"":category.toUpperCase(Locale.ROOT);if(!Set.of("EVENTS","REVIEWS","NEWS").contains(normalized))throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Category must be EVENTS, REVIEWS or NEWS.");if(title==null||title.isBlank()||title.length()>120||message==null||message.isBlank()||message.length()>1000||targetUrl!=null&&targetUrl.length()>500)throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Invalid notification content.");List<Notification> batch=new ArrayList<>();for(User u:users.findAll()){boolean enabled=switch(normalized){case "EVENTS"->u.isNotifEvents();case "REVIEWS"->u.isNotifReviews();default->u.isNotifNews();};if(enabled){Notification n=new Notification();n.setUserId(u.getId());n.setCategory(normalized);n.setTitle(title.trim());n.setMessage(message.trim());n.setTargetUrl(targetUrl);batch.add(n);}}notifications.saveAll(batch);return batch.size();}
+ private NotificationDto dto(Notification n){return new NotificationDto(n.getId(),n.getCategory(),n.getTitle(),n.getMessage(),n.getTargetUrl(),n.getReadAt(),n.getCreatedAt());}
+ public record NotificationDto(UUID id,String category,String title,String message,String targetUrl,Instant readAt,Instant createdAt){}
+}
