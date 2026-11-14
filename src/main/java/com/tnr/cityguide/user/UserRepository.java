@@ -5,4 +5,6 @@ public interface UserRepository extends JpaRepository<User,UUID> {
  boolean existsByEmailIgnoreCase(String email);
  boolean existsByRole(Role role);
  Optional<User> findByIdAndRole(UUID id,Role role);
+ long countByRole(Role role);
+ List<User> findTop8ByRoleOrderByCreatedAtDesc(Role role);
 }
