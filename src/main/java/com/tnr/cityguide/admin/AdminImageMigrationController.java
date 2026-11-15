@@ -2,7 +2,8 @@ package com.tnr.cityguide.admin;
 import com.tnr.cityguide.city.*;import com.tnr.cityguide.place.*;import com.tnr.cityguide.storage.StorageService;import com.tnr.cityguide.user.*;
 import java.util.*;import org.slf4j.Logger;import org.slf4j.LoggerFactory;import org.springframework.http.HttpStatus;import org.springframework.transaction.annotation.Transactional;import org.springframework.transaction.support.TransactionSynchronization;import org.springframework.transaction.support.TransactionSynchronizationManager;import org.springframework.web.bind.annotation.*;import org.springframework.web.server.ResponseStatusException;
 @RestController @RequestMapping("/api/admin/images")
-public class AdminImageMigrationController {\n private static final Logger log=LoggerFactory.getLogger(AdminImageMigrationController.class);
+public class AdminImageMigrationController {
+ private static final Logger log=LoggerFactory.getLogger(AdminImageMigrationController.class);
  private final UserRepository users;private final CityRepository cities;private final PlaceImageRepository images;private final StorageService storage;
  public AdminImageMigrationController(UserRepository users,CityRepository cities,PlaceImageRepository images,StorageService storage){this.users=users;this.cities=cities;this.images=images;this.storage=storage;}
  @PostMapping("/migrate-legacy") @Transactional public MigrationResult migrateLegacy(){log.info("[IMAGE_MIGRATION] Legacy image migration started");int checked=0,migrated=0,unavailable=0,failed=0;List<String> uploaded=new ArrayList<>();

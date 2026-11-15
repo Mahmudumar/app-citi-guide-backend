@@ -13,7 +13,8 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/admin")
-public class AdminDashboardController {\n private static final Logger log=LoggerFactory.getLogger(AdminDashboardController.class);
+public class AdminDashboardController {
+ private static final Logger log=LoggerFactory.getLogger(AdminDashboardController.class);
  private final PlaceRepository places;
  private final ReviewRepository reviews;
  private final UserRepository users;

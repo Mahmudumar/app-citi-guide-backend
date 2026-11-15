@@ -1,6 +1,7 @@
 package com.tnr.cityguide.admin;
 import com.tnr.cityguide.common.NotFoundException;import com.tnr.cityguide.place.*;import com.tnr.cityguide.city.CityRepository;import com.tnr.cityguide.storage.StorageService;import io.swagger.v3.oas.annotations.tags.Tag;import java.time.*;import org.slf4j.Logger;import org.slf4j.LoggerFactory;import java.util.*;import org.springframework.http.*;import org.springframework.transaction.annotation.Transactional;import org.springframework.web.bind.annotation.*;import org.springframework.web.multipart.MultipartFile;import org.springframework.web.server.ResponseStatusException;
-@RestController @RequestMapping("/api/admin/places") @Tag(name="Admin places") public class AdminPlaceController {\n private static final Logger log=LoggerFactory.getLogger(AdminPlaceController.class);
+@RestController @RequestMapping("/api/admin/places") @Tag(name="Admin places") public class AdminPlaceController {
+ private static final Logger log=LoggerFactory.getLogger(AdminPlaceController.class);
  private final PlaceRepository places;private final CityRepository cities;private final PlaceImageRepository images;private final StorageService storage;private final PlaceService placeService;
  public AdminPlaceController(PlaceRepository p,CityRepository c,PlaceImageRepository i,StorageService s,PlaceService ps){places=p;cities=c;images=i;storage=s;placeService=ps;}
  public record PlaceRequest(String id,String cityId,String category,String name,String description,String address,String phone,String website,double lat,double lng,String opensAt,String closesAt,boolean open24h,List<Short> closedDays,String hoursText,String extra,double baseRating,Instant eventStartsAt,Instant eventEndsAt){}
