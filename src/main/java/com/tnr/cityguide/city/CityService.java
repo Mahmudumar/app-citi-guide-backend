@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 @Service
 public class CityService {
+ private static final Logger log=LoggerFactory.getLogger(CityService.class);
  private final CityRepository cities; private final PlaceRepository places;
  public CityService(CityRepository cities,PlaceRepository places){this.cities=cities;this.places=places;}
  @Transactional(readOnly=true) public List<CityDto> all(){log.info("[CITY] Listing requested");List<CityDto> result=cities.findAll().stream().map(this::dto).toList();log.info("[CITY] Listing completed: count={}",result.size());return result;}
