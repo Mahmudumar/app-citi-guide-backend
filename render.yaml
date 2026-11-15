@@ -1,0 +1,40 @@
+# Render Blueprint for the City Guide API.
+# Set the secret values in the Render dashboard when prompted.
+services:
+  - type: web
+    name: city-guide-api
+    runtime: docker
+    plan: starter
+    region: frankfurt
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /actuator/health
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      - key: DB_URL
+        sync: false
+      - key: DB_USER
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: CORS_ORIGINS
+        sync: false
+      - key: STORAGE_LOCAL_DIR
+        value: /var/data/uploads
+      - key: MAIL_HOST
+        sync: false
+      - key: MAIL_PORT
+        value: "587"
+      - key: MAIL_USERNAME
+        sync: false
+      - key: MAIL_PASSWORD
+        sync: false
+      - key: MAIL_FROM
+        sync: false
+    disk:
+      name: city-guide-uploads
+      mountPath: /var/data
+      sizeGB: 1

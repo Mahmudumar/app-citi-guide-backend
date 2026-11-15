@@ -1,30 +1,7 @@
-# IDE and editor files
+target/
+uploads/
+.env
 .idea/
 .vscode/
 *.iml
-*.swp
 .DS_Store
-
-# Java / Maven build output
-target/
-*.class
-*.jar
-*.war
-.mvn/wrapper/maven-wrapper.jar
-
-# Logs
-*.log
-logs/
-
-# Local environment and secrets
-.env
-.env.*
-!.env.example
-application-local.properties
-secrets.properties
-
-# Runtime and OS files
-*.pid
-*.seed
-*.pid.lock
-Thumbs.db

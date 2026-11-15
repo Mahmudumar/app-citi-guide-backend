@@ -1,0 +1,10 @@
+spring:
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/cityguide}
+    username: ${DB_USER:cityguide}
+    password: ${DB_PASSWORD:cityguide}
+  mail:
+    host: localhost
+app:
+  cors:
+    allowed-origin-patterns: http://localhost:*,http://127.0.0.1:*
