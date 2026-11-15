@@ -28,7 +28,7 @@ The Blueprint creates a Docker web service, enables the production Spring profil
 - `DB_URL`: JDBC PostgreSQL URL. For Supabase, use its direct connection or session pooler with SSL, for example `jdbc:postgresql://HOST:5432/postgres?sslmode=require`. Use the host, port, database and username shown in Supabase. Avoid the transaction pooler for Flyway migrations.
 - `DB_USER` and `DB_PASSWORD`: database credentials.
 - `JWT_SECRET`: generate a long random secret (at least 32 bytes). Render can generate this value through the Blueprint.
-- `CORS_ORIGINS`: comma-separated exact origins allowed to call the API from browsers. For a Flutter mobile app this may be empty unless Flutter Web is also used; never use a wildcard in production.
+- `CORS_ORIGINS`: comma-separated exact browser origins allowed to call the API. For Flutter Web, include the deployed site origin (scheme + host + optional port, with no path), for example `https://YOUR-ACCOUNT.github.io` or your custom domain. For local Chrome testing, include the exact local origin such as `http://localhost:7357` (use the port shown in the browser address bar). Include every origin you use, and redeploy/restart the backend after changing this Render environment variable. The API accepts the `Authorization` and `Content-Type` headers and permits `OPTIONS` preflight requests. Do not use a wildcard in production.
 - `MAIL_HOST`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_FROM`: SMTP details if password-reset email is to be delivered. Set these before relying on password reset in production.
 
 Render provides `PORT` automatically and the application uses it. Do not set `SERVER_PORT` unless you have a specific reason. Keep `STORAGE_LOCAL_DIR=/var/data/uploads`; the Blueprint sets this for the persistent disk.
